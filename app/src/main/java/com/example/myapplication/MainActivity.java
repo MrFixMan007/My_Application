@@ -7,6 +7,14 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -21,19 +29,31 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+    GoogleMap mMap;
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap = googleMap;
+        LatLng point = new LatLng(52.15521858508918, 46.437888573401914);
+        mMap.addMarker(new MarkerOptions().position(point).title("Начальная координата"));
+        mMap.setBuildingsEnabled(true);
+        mMap.setIndoorEnabled(true);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(point));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
+
         String url = "https://api.open-meteo.com/v1/forecast?latitude=52.52&longitude=13.41&hourly=temperature_2m";
 
         List<Double> temps = new ArrayList<>();
         GetURLData getURLData = new GetURLData(temps);
-        getURLData.execute(url);
-//      new GetURLData(temps).execute(url);
+//        getURLData.execute(url);
     }
 
     private class GetURLData extends AsyncTask<String, String, String>{
